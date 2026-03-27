@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥐 115年臺南看守所暖心烘培團購</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        :root { --bg: #fdfcf5; --khaki: #e7dcc8; --coffee: #6f4e37; --caramel: #c9a063; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--coffee); }
+        .item-card { transition: all 0.2s; border: 1px solid #eaddca; background: white; border-radius: 1rem; }
+        .item-card:hover { border-color: var(--caramel); transform: translateY(-2px); }
+        .category-title { border-left: 5px solid var(--caramel); padding-left: 12px; margin: 35px 0 15px; font-weight: bold; font-size: 1.25rem; }
+        .info-box { background: #f4eee1; border: 1px dashed var(--caramel); border-radius: 12px; }
+        .qty-btn { width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.25rem; transition: all 0.1s; }
+    </style>
+</head>
+<body class="pb-44">
+
+<header class="bg-[#e7dcc8] p-6 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+        <div>
+            <h1 class="text-xl md:text-2xl font-bold">👨‍🍳 臺南看守所 暖心烘培團購</h1>
+            <p class="text-sm opacity-90 mt-1">115年2月14日起適用 | 全品項安佳無水奶油製作</p>
+        </div>
+        <span class="text-4xl hidden sm:block">🥯</span>
+    </div>
+</header>
+
+<main class="max-w-4xl mx-auto p-4 md:p-6">
+    <section class="info-box p-5 mb-8 text-sm md:text-base leading-relaxed">
+        <h2 class="font-bold text-lg mb-2">✨ 訂購重要提醒</h2>
+        <ul class="space-y-1">
+            <li>• 本所烘培產品【全品項使用<b>安佳無水奶油</b>】🧈</li>
+            <li>• <b>【運費說明】</b>貝果採低溫宅配「貨到付運費」服務。</li>
+            <li class="pl-4 text-gray-600">※ 運費概估：40個以內225元，40-100個290元，以貨運公司計費為準。</li>
+        </ul>
+    </section>
+
+    <section class="bg-white p-6 rounded-2xl shadow-sm mb-10 border border-[#eaddca]">
+        <label class="block text-lg font-bold mb-3">✍️ 訂購人姓名 (同事請填全名)</label>
+        <input type="text" id="userName" class="w-full border-2 border-[#f3e5dc] rounded-xl p-4 focus:border-[#c9a063] outline-none text-lg bg-[#fffdfb]" placeholder="請輸入姓名">
+    </section>
+
+    <div id="product-container"></div>
+</main>
+
+<footer class="fixed bottom-0 left-0 right-0 p-5 bg-white border-t-2 border-[#e7dcc8] z-50 shadow-2xl">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <span class="text-4xl">🛒</span>
+            <div>
+                <p class="text-gray-500 text-sm">已選 <span id="cartCount" class="font-bold text-[#c9a063]">0</span> 件品項</p>
+                <p class="text-3xl font-bold text-[#8b5a2b]">NT$ <span id="cartTotal">0</span></p>
+            </div>
+        </div>
+        <button id="submitBtn" class="bg-[#8b5a2b] hover:bg-[#a06e42] text-white px-10 py-4 rounded-2xl font-bold text-xl transition-all active:scale-95 shadow-lg">確認提交</button>
+    </div>
+</footer>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzVvmaccshHbJc-e6fMMFBFzhKlSxUHJPBQLauFoUG6-h5e6whkhIRbVi_4vUabCZxKkg/exec";
+
+    // 完整品項清單 - 每一種口味都獨立
+    const menuData = [
+        { cat: "🍥 手工蛋捲 (5入/包) - $75", items: [
+            {n:"原味蛋捲(5入)",p:75}, {n:"芝麻蛋捲(5入)",p:75}, {n:"可可蛋捲(5入)",p:75}, {n:"咖啡蛋捲(5入)",p:75}
+        ]},
+        { cat: "🥢 手工蛋捲 (單支裝) - $15", items: [
+            {n:"抹茶蛋捲(單支)",p:15}, {n:"海苔蛋捲(單支)",p:15}, {n:"紅茶蛋捲(單支)",p:15}
+        ]},
+        { cat: "🌈 雙色蛋捲 (單支裝) - $18", items: [
+            {n:"抹綠雙色蛋捲(單支)",p:18}, {n:"桃紅雙色蛋捲(單支)",p:18}
+        ]},
+        { cat: "🎁 蛋捲禮盒", items: [
+            {n:"10支裝禮盒",p:200}, {n:"12支裝禮盒",p:220}, {n:"18支裝禮盒",p:300}
+        ]},
+        { cat: "🍪 精選餅乾 (200g)", items: [
+            {n:"杏仁瓦片",p:150}, {n:"美式核桃餅乾",p:85}, {n:"杏仁巧克力餅乾",p:100}, {n:"綜合餅乾",p:90}
+        ]},
+        { cat: "🥯 經典貝果 - $20 系列", items: [
+            {n:"原味貝果",p:20}, {n:"巧克力貝果",p:20}
+        ]},
+        { cat: "🥯 經典貝果 - $30 系列", items: [
+            {n:"黑糖葡萄貝果",p:30}, {n:"堅果貝果",p:30}, {n:"海鹽奶油貝果",p:30}, {n:"乳酪貝果",p:30}
+        ]},
+        { cat: "🥯 經典貝果 - $35 系列", items: [
+            {n:"桔香亞麻子貝果",p:35}, {n:"葡萄奶酥貝果",p:35}, {n:"濃醇芝麻貝果",p:35}, {n:"佛卡夏貝果",p:35}, {n:"匈牙利乳酪貝果",p:35}, {n:"味噌貝果",p:35}
+        ]},
+        { cat: "🥯 經典貝果 - $40 系列", items: [
+            {n:"伯爵果物貝果",p:40}, {n:"檸檬乳酪貝果",p:40}, {n:"抹茶紅豆麻糬貝果",p:40}
+        ]},
+        { cat: "🥯 經典貝果 - $45 系列", items: [
+            {n:"蔓越莓乳酪貝果",p:45}, {n:"芋頭蛋黃貝果",p:45}, {n:"大理石乳酪貝果",p:45}
+        ]},
+        { cat: "🧺 貝果組合與配件", items: [
+            {n:"咸巧貝果組合(5入)",p:180}, {n:"恬密貝果組合(5入)",p:195}, {n:"5入提盒(單購)",p:45}
+        ]}
+    ];
+
+    let cart = {};
+
+    function initApp() {
+        const container = document.getElementById('product-container');
+        menuData.forEach(group => {
+            let html = `<h3 class="category-title">${group.cat}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+            group.items.forEach(item => {
+                html += `
+                <div class="item-card p-5 flex justify-between items-center shadow-sm">
+                    <div>
+                        <div class="font-bold text-lg">${item.n}</div>
+                        <div class="text-[#c9a063] font-bold text-lg">$${item.p}</div>
+                    </div>
+                    <div class="flex items-center gap-3 bg-[#fdfaf5] p-2 rounded-xl border border-[#f3eadd]">
+                        <button onclick="changeQty('${item.n}',${item.p},-1)" class="qty-btn bg-white border border-[#eaddca] text-[#6f4e37] hover:bg-gray-100">-</button>
+                        <span id="qty-${item.n}" class="w-8 text-center font-bold text-2xl">0</span>
+                        <button onclick="changeQty('${item.n}',${item.p},1)" class="qty-btn bg-[#c9a063] text-white hover:bg-[#b88f55]">+</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML += html + `</div>`;
+        });
+    }
+
+    window.changeQty = (name, price, delta) => {
+        if (!cart[name]) cart[name] = { q: 0, p: price };
+        cart[name].q = Math.max(0, cart[name].q + delta);
+        document.getElementById(`qty-${name}`).innerText = cart[name].q;
+        updateSummary();
+    }
+
+    function updateSummary() {
+        let total = 0, count = 0;
+        for (const k in cart) { total += cart[k].q * cart[k].p; count += cart[k].q; }
+        document.getElementById('cartTotal').innerText = total.toLocaleString();
+        document.getElementById('cartCount').innerText = count;
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', async function() {
+        const name = document.getElementById('userName').value.trim();
+        if (!name) return alert("✍️ 請輸入姓名！");
+        let itemsArr = [];
+        for (let k in cart) if (cart[k].q > 0) itemsArr.push(`${k}|${cart[k].p}|${cart[k].q}`);
+        if (itemsArr.length === 0) return alert("🛒 您的購物籃是空的！");
+
+        if (!confirm(`確認提交嗎？\n總額：NT$ ${document.getElementById('cartTotal').innerText}`)) return;
+
+        this.disabled = true; this.innerText = "傳送中...";
+        const params = new URLSearchParams();
+        params.append("name", name);
+        params.append("order", itemsArr.join(", "));
+
+        try {
+            await fetch(API_URL, { method: "POST", mode: "no-cors", body: params });
+            alert("🎉 訂單成功送出！請至試算表查看。");
+            location.reload();
+        } catch (e) {
+            alert("連線發生錯誤");
+            this.disabled = false; this.innerText = "確認提交";
+        }
+    });
+
+    initApp();
+</script>
+</body>
+</html>
